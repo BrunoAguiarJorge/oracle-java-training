@@ -2,6 +2,7 @@ package oracle.training.data;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 /**
  * {@link DISCOUNT_RATE discount rate}
@@ -18,6 +19,7 @@ public class Product {
 	private Rating rating;
 
 	public Product() {
+		this(0, "no name", BigDecimal.ZERO);
 	}
 
 	public Product(int id, String name, BigDecimal price, Rating rating) {
@@ -63,16 +65,37 @@ public class Product {
 	public Rating getRating() {
 		return rating;
 	}
-	
+
 	public Product applyRating(Rating newRating) {
 		return new Product(this.id, this.name, this.price, newRating);
-		
+
 	}
 
-//	@Override
-//	public String toString() {
-//		return "Product [id=" + id + ", name=" + name + ", price=" + price + ", discount=" + getDiscount() + ", rating="
-//				+ getRating() + "]";
-//	}
+	@Override
+	public String toString() {
+		return " id= " + id + ", name= " + name + ", price= " + price + ", discount= " + getDiscount()
+				+ ", rating= " + getRating().getStars() + " ";
+	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj instanceof Product)
+		{
+			final Product other = (Product) obj;
+			return this.id == other.id && Objects.equals(this.name, other.name);
+		}
+		return false;
+	}
 }

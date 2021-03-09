@@ -1,24 +1,33 @@
 package oracle.training.data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class Food extends Product{
+public class Food extends Product {
 
-	LocalDate bestBefore;
+	private LocalDate bestBefore;
 
-	public Food() {
-		super();
+	public Food(int id, String name, BigDecimal price, Rating rating, LocalDate bestBefore) {
+		super(id, name , price , rating);
+		this.bestBefore = bestBefore;
+		
 	}
-
 	public LocalDate getBestBefore() {
 		return bestBefore;
 	}
-
-	public void setBestBefore(LocalDate bestBefore) {
-		this.bestBefore = bestBefore;
+	
+	
+	@Override
+	public BigDecimal getDiscount() {
+		
+		return (bestBefore.isEqual(LocalDate.now()))
+				? super.getDiscount() : BigDecimal.ZERO;
 	}
 	
-	
-	
+	@Override
+	public String toString() {
+		return super.toString() + " bestBefore=" + bestBefore;
+	}
+
 	
 }
