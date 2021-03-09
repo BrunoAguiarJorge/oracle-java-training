@@ -2,6 +2,7 @@ package oracle.training.data;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Objects;
  * @author brunoaguiar
  *
  */
-public class Product {
+public abstract class Product {
 	public static final BigDecimal DISCOUNT_RATE = BigDecimal.valueOf(0.1);
 	private int id;
 	private String name;
@@ -18,18 +19,18 @@ public class Product {
 	// add getter method
 	private Rating rating;
 
-	public Product() {
-		this(0, "no name", BigDecimal.ZERO);
-	}
+//	Product() {
+//		this(0, "no name", BigDecimal.ZERO);
+//	}
 
-	public Product(int id, String name, BigDecimal price, Rating rating) {
+	Product(int id, String name, BigDecimal price, Rating rating) {
 		this.id = id;
 		this.name = name;
 		this.price = price;
 		this.rating = rating;
 	}
 
-	public Product(int id, String name, BigDecimal price) {
+	Product(int id, String name, BigDecimal price) {
 		this(id, name, price, Rating.NOT_REATED);
 	}
 
@@ -66,15 +67,19 @@ public class Product {
 		return rating;
 	}
 
-	public Product applyRating(Rating newRating) {
-		return new Product(this.id, this.name, this.price, newRating);
-
-	}
+	public abstract Product applyRating(Rating newRating);
+//	{
+//		 return new Product(this.id, this.name, this.price, newRating);
+//	}
 
 	@Override
 	public String toString() {
 		return " id= " + id + ", name= " + name + ", price= " + price + ", discount= " + getDiscount()
-				+ ", rating= " + getRating().getStars() + " ";
+				+ ", rating= " + getRating().getStars() + ", BBF= " + getBestBefore();
+	}
+	
+	public LocalDate getBestBefore() {
+		return LocalDate.now();
 	}
 
 	@Override
