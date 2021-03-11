@@ -5,13 +5,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Objects;
 
-/**
- * {@link DISCOUNT_RATE discount rate}
- * 
- * @author brunoaguiar
- *
- */
-public abstract class Product {
+public abstract class Product implements Rateable<Product> {
 	public static final BigDecimal DISCOUNT_RATE = BigDecimal.valueOf(0.1);
 	private int id;
 	private String name;
@@ -63,21 +57,22 @@ public abstract class Product {
 		return price.multiply(DISCOUNT_RATE).setScale(2, RoundingMode.HALF_UP);
 	}
 
+	@Override
 	public Rating getRating() {
 		return rating;
 	}
 
-	public abstract Product applyRating(Rating newRating);
+//	public abstract Product applyRating(Rating newRating);
 //	{
 //		 return new Product(this.id, this.name, this.price, newRating);
 //	}
 
 	@Override
 	public String toString() {
-		return " id= " + id + ", name= " + name + ", price= " + price + ", discount= " + getDiscount()
-				+ ", rating= " + getRating().getStars() + ", BBF= " + getBestBefore();
+		return " id= " + id + ", " + name + ", price= " + price + ", discount= " + getDiscount() + ", "
+				+ getRating().getStars() + ", BBF= " + getBestBefore();
 	}
-	
+
 	public LocalDate getBestBefore() {
 		return LocalDate.now();
 	}
@@ -96,8 +91,7 @@ public abstract class Product {
 		if (this == obj) {
 			return true;
 		}
-		if (obj instanceof Product)
-		{
+		if (obj instanceof Product) {
 			final Product other = (Product) obj;
 			return this.id == other.id && Objects.equals(this.name, other.name);
 		}
