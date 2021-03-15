@@ -1,9 +1,9 @@
 package oracle.training.data;
 
-public class Review {
+public class Review implements Comparable<Review> {
 	private Rating rating;
 	private String comments;
-	
+
 	public Review(Rating rating, String comments) {
 		super();
 		this.rating = rating;
@@ -22,5 +22,13 @@ public class Review {
 	public String toString() {
 		return "Review [rating=" + rating + ", comments=" + comments + "]";
 	}
-	
+
+	/**
+	 * comparable sort the order of the reviews
+	 */
+	@Override
+	public int compareTo(Review other) {
+		return other.rating.ordinal() - this.rating.ordinal();
+	}
+
 }

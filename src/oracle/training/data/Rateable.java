@@ -5,8 +5,6 @@ public interface Rateable<T> {
 
 	public static final Rating DEFAULT_RATING = Rating.NOT_REATED;
 
-	// I have ommited access modifier (public) and abstract because interfaces are
-	// implicitly public and abstract
 	T applyRating(Rating rating);
 
 	public default T applyRating(int stars) {

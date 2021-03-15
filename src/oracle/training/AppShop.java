@@ -9,21 +9,29 @@ import oracle.training.data.Rating;
 
 public class AppShop {
 	public static void main(String[] args) {
-		
-		ProductManager pm = new ProductManager(Locale.UK);
-		
-		Product p1 = pm.createProduct(101, "Tea", BigDecimal.valueOf(1.99), Rating.NOT_REATED);
-		pm.printProductReport();
-		p1 = pm.reviewProduct(p1, Rating.ONE_STAR, "Nice ");
-		p1 = pm.reviewProduct(p1, Rating.ONE_STAR, "Nice cup ");
-		p1 = pm.reviewProduct(p1, Rating.FOUR_STAR, "Nice cup of ");
-		p1 = pm.reviewProduct(p1, Rating.FOUR_STAR, "Nice cup of coffee");
-		p1 = pm.reviewProduct(p1, Rating.FOUR_STAR, "");
-		p1 = pm.reviewProduct(p1, Rating.FOUR_STAR, "Nice cup of coffee");
-		pm.printProductReport();
-		
-		
-		
+
+		ProductManager pm = new ProductManager(Locale.US);
+
+		pm.createProduct(101, "Tea", BigDecimal.valueOf(1.99), Rating.NOT_REATED);
+		pm.printProductReport(101);
+		pm.reviewProduct(101, Rating.ONE_STAR, "Nice ");
+		pm.reviewProduct(101, Rating.ONE_STAR, "Nice cup ");
+		pm.reviewProduct(101, Rating.TWO_STAR, "Nice cup of ");
+		pm.reviewProduct(101, Rating.THREE_STAR, "Nice cup of coffee");
+		pm.reviewProduct(101, Rating.FOUR_STAR, "");
+		pm.reviewProduct(101, Rating.FOUR_STAR, "Nice cup of coffee");
+		pm.printProductReport(101);
+
+		pm.createProduct(102, "Cake", BigDecimal.valueOf(2.99), Rating.NOT_REATED);
+		pm.printProductReport(102);
+		pm.reviewProduct(102, Rating.ONE_STAR, "cake ");
+		pm.reviewProduct(102, Rating.ONE_STAR, "Nice cake ");
+		pm.reviewProduct(102, Rating.FOUR_STAR, "good cake ");
+		pm.reviewProduct(102, Rating.FOUR_STAR, "Beautiful");
+		pm.reviewProduct(102, Rating.FOUR_STAR, "");
+		pm.reviewProduct(102, Rating.FOUR_STAR, "Happy days");
+		pm.printProductReport(102);
+
 //		Product p2 = pm.createProduct(102, "Coffee", BigDecimal.valueOf(2.99), Rating.FOUR_STAR);
 //		Product p3 = pm.createProduct(103, "Cake", BigDecimal.valueOf(3.99), Rating.FIVE_STAR, LocalDate.now().plusDays(2));
 //		Product p4 = pm.createProduct(103, "Cookie", BigDecimal.valueOf(3.99), Rating.FIVE_STAR, LocalDate.now());
@@ -47,9 +55,5 @@ public class AppShop {
 //		System.out.println(p7);
 //		System.out.println(p8);
 //		System.out.println(p9);
-
-		
-	
-	
 	}
 }
