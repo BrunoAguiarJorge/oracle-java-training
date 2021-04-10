@@ -17,13 +17,6 @@ public class AppShop {
 		pm.parseReview("101,8,Nice tea");
 		pm.parseReview("101,3,Nice hot tea");
 		pm.parseReview("101,1,Nice hot cup of tea");
-//		pm.reviewProduct(101, Rating.ONE_STAR, "Nice ");
-//		pm.reviewProduct(101, Rating.ONE_STAR, "Nice cup ");
-//		pm.reviewProduct(101, Rating.TWO_STAR, "Nice cup of ");
-//		pm.reviewProduct(101, Rating.THREES_STAR, "Nice cup of coffee");
-//		pm.reviewProduct(101, Rating.FOUR_STAR, "");
-//		pm.reviewProduct(101, Rating.FOUR_STAR, "Nice cup of coffee");
-		//pm.parseProduct("D,101,Tea,1.99,0,2019-09-19");
 		pm.printProductReport(101);
 		pm.parseProduct("F,103,cake,1.99,0,2019-09-19");
 		pm.parseReview("103,4, nice cake");

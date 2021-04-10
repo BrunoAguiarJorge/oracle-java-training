@@ -1,6 +1,13 @@
 package oracle.training.data;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -20,6 +27,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.sound.midi.Receiver;
+
 public class ProductManager {
 
 	private Map<Product, List<Review>> products = new HashMap<>();
@@ -28,6 +37,13 @@ public class ProductManager {
 	private ResourceBundle config = ResourceBundle.getBundle("oracle.training.data.config");
 	private MessageFormat reviewFormat = new MessageFormat(config.getString("review.data.format"));
 	private MessageFormat productFormat = new MessageFormat(config.getString("product.data.format"));
+
+	/**
+	 * JAVA I/O
+	 */
+	private Path reportsFolder = Path.of(config.getString("reports.folder"));
+	private Path dataFolder = Path.of(config.getString("data.folder"));
+	private Path tempFolder = Path.of(config.getString("temp.folder"));
 
 	private static Map<String, ResourceFormatter> formatters = Map.of("en-GB", new ResourceFormatter(Locale.UK),
 			"en-US", new ResourceFormatter(Locale.US), "fr-FR", new ResourceFormatter(Locale.FRANCE), "pt-BR",
@@ -111,23 +127,28 @@ public class ProductManager {
 		try {
 			printProductReport(findProduct(id));
 		} catch (ProductManagerException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
 
-	public void printProductReport(Product product) {
+	public void printProductReport(Product product) throws IOException {
 		List<Review> reviews = products.get(product);
 		Collections.sort(reviews);
-		StringBuilder txt = new StringBuilder();
-		txt.append(formatter.formatProduct(product));
-		txt.append('\n');
-		if (reviews.isEmpty()) {
-			txt.append(formatter.getText("no.reviews") + '\n');
-		} else {
-			txt.append(reviews.stream().map(r -> formatter.formatReview(r) + '\n').collect(Collectors.joining()));
-		}
+//		StringBuilder txt = new StringBuilder();
+		Path productFile = reportsFolder
+				.resolve(MessageFormat.format(config.getString("report.file"), product.getId()));
+		try (PrintWriter out = new PrintWriter(
+				new OutputStreamWriter(Files.newOutputStream(productFile, StandardOpenOption.CREATE), "UTF-8"))) {
+			out.append(formatter.formatProduct(product) + System.lineSeparator());
+			if (reviews.isEmpty()) {
+				out.append(formatter.getText("no.reviews") + System.lineSeparator());
+			} else {
+				out.append(reviews.stream().map(r -> formatter.formatReview(r) + System.lineSeparator())
+						.collect(Collectors.joining()));
+			}
 //		for (Review review : reviews) {
 //			txt.append(formatter.formatReview(review));
 //			txt.append('\n');
@@ -136,7 +157,8 @@ public class ProductManager {
 //			txt.append(formatter.getText("no.reviews"));
 //			txt.append('\n');
 //		}
-		System.out.println(txt);
+			// System.out.println(txt);
+		}
 	}
 
 //  commented code was updated to streams.
@@ -154,36 +176,38 @@ public class ProductManager {
 		System.out.println(txt);
 	}
 
-	public void parseReview(String text) {
+	public Review parseReview(String text) {
+		Review review = null;
 		try {
 			Object[] values = reviewFormat.parse(text);
-			reviewProduct(Integer.parseInt((String) values[0]), Rateable.convert(Integer.parseInt((String) values[1])),
-					(String) values[2]);
+			review = new Review(Rateable.convert(Integer.parseInt((String) values[0])), (String) values[1]);
 		} catch (ParseException | NumberFormatException ex) {
 			ex.printStackTrace();
 		}
+		return review;
 	}
 
-	public void parseProduct(String text) {
+	public Product parseProduct(String text) {
+		Product product = null;
 		try {
 			Object[] values = productFormat.parse(text);
-			int id = Integer.parseInt((String)values[1]);
-			String name = (String) values [2];
-			BigDecimal price = BigDecimal.valueOf(Double.parseDouble((String)values[3]));
-			Rating rating = Rateable.convert(Integer.parseInt((String)values[4]));
+			int id = Integer.parseInt((String) values[1]);
+			String name = (String) values[2];
+			BigDecimal price = BigDecimal.valueOf(Double.parseDouble((String) values[3]));
+			Rating rating = Rateable.convert(Integer.parseInt((String) values[4]));
 			switch ((String) values[0]) {
-			case "D": 
-				createProduct(id, name, price, rating);
+			case "D":
+				product = new Drink(id, name, price, rating);
 				break;
-				
-			case "F": 
-				LocalDate bestBefore =LocalDate.parse((String)values[5]);
-				createProduct(id, name, price, rating, bestBefore);
+
+			case "F":
+				LocalDate bestBefore = LocalDate.parse((String) values[5]);
+				product = new Food(id, name, price, rating, bestBefore);
 			}
-		}catch (ParseException | NumberFormatException| DateTimeParseException ex) {
+		} catch (ParseException | NumberFormatException | DateTimeParseException ex) {
 			ex.printStackTrace();
 		}
-
+		return product;
 	}
 
 	public Map<String, String> getDiscounts() {
