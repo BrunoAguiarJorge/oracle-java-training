@@ -3,8 +3,8 @@ package oracle.training.data;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -26,8 +26,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import javax.sound.midi.Receiver;
 
 public class ProductManager {
 
@@ -55,6 +53,7 @@ public class ProductManager {
 
 	public ProductManager(String languageTag) {
 		changeLocale(languageTag);
+		loadAllData();
 	}
 
 	public void changeLocale(String languageTag) {
@@ -77,21 +76,7 @@ public class ProductManager {
 		return product;
 	}
 
-	/**
-	 * Search for specific product object in the collection of product using for
-	 * loop and streams
-	 * 
-	 * @throws ProductManagerException
-	 */
 	public Product findProduct(int id) throws ProductManagerException {
-//		Product result = null;
-//		for (Product product : products.keySet()) {
-//			if (product.getId() == id) {
-//				result = product;
-//				break;
-//			}
-//		}
-//		return result;
 		return products.keySet().stream().filter(p -> p.getId() == id).findFirst()
 				.orElseThrow(() -> new ProductManagerException("Product with id " + id + "not found"));
 
@@ -112,12 +97,6 @@ public class ProductManager {
 		reviews.add(new Review(rating, comments));
 		product = product.applyRating(Rateable.convert(
 				(int) Math.round(reviews.stream().mapToInt(r -> r.getRating().ordinal()).average().orElse(0))));
-
-//		int sum = 0;
-//		for (Review review : reviews) {
-//			sum += review.getRating().ordinal();
-//		}
-//		product = product.applyRating(Rateable.convert(Math.round((float) sum / reviews.size())));
 		products.put(product, reviews);
 		return product;
 
@@ -131,13 +110,11 @@ public class ProductManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public void printProductReport(Product product) throws IOException {
 		List<Review> reviews = products.get(product);
 		Collections.sort(reviews);
-//		StringBuilder txt = new StringBuilder();
 		Path productFile = reportsFolder
 				.resolve(MessageFormat.format(config.getString("report.file"), product.getId()));
 		try (PrintWriter out = new PrintWriter(
@@ -149,34 +126,55 @@ public class ProductManager {
 				out.append(reviews.stream().map(r -> formatter.formatReview(r) + System.lineSeparator())
 						.collect(Collectors.joining()));
 			}
-//		for (Review review : reviews) {
-//			txt.append(formatter.formatReview(review));
-//			txt.append('\n');
-//		}
-//		if (reviews.isEmpty()) {
-//			txt.append(formatter.getText("no.reviews"));
-//			txt.append('\n');
-//		}
-			// System.out.println(txt);
 		}
 	}
 
-//  commented code was updated to streams.
 	public void printProducts(Predicate<Product> filter, Comparator<Product> sorter) {
-//		List<Product> productList = new ArrayList<>(products.keySet());
-//		productList.sort(sorter);
 		StringBuilder txt = new StringBuilder();
-//		for (Product product : productList) {
-//			txt.append(formatter.formatProduct(product));
-//			txt.append('\n');
-//		}
-
 		products.keySet().stream().sorted(sorter).filter(filter)
 				.forEach(p -> txt.append(formatter.formatProduct(p) + '\n'));
 		System.out.println(txt);
 	}
 
-	public Review parseReview(String text) {
+	private void loadAllData() {
+		try {
+			products = Files.list(dataFolder).filter(file -> file.getFileName().toString().startsWith("product"))
+					.map(file -> loadProduct(file)).filter(product -> product != null)
+					.collect(Collectors.toMap(product -> product, product -> loadReviews(product)));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private Product loadProduct(Path file) {
+		Product product = null;
+		try {
+			product = parseProduct(
+					Files.lines(dataFolder.resolve(file), Charset.forName("UTF-8")).findFirst().orElseThrow());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return product;
+	}
+
+	private List<Review> loadReviews(Product product) {
+		List<Review> reviews = null;
+		Path file = dataFolder.resolve(MessageFormat.format(config.getString("reviews.data.file"), product.getId()));
+		if (Files.notExists(file)) {
+			reviews = new ArrayList<>();
+
+		} else {
+			try {
+				reviews = Files.lines(file, Charset.forName("UTF-8")).map(Text -> parseReview(Text))
+						.filter(review -> review != null).collect(Collectors.toList());
+
+			} catch (Exception e) {
+			}
+		}
+		return reviews;
+	}
+
+	private Review parseReview(String text) {
 		Review review = null;
 		try {
 			Object[] values = reviewFormat.parse(text);
@@ -187,7 +185,7 @@ public class ProductManager {
 		return review;
 	}
 
-	public Product parseProduct(String text) {
+	private Product parseProduct(String text) {
 		Product product = null;
 		try {
 			Object[] values = productFormat.parse(text);
