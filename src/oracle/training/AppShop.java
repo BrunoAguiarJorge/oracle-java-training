@@ -36,11 +36,14 @@ public class AppShop {
 		pm.printProductReport(102);
 
 		pm.printProducts(p -> p.getPrice().floatValue() < 8, (p1, p2) -> p2.getRating().ordinal());
-//		
-		pm.getDiscounts().forEach((rating, discount) -> System.out.println(rating + "\t" + discount));
-//		
+		
+		pm.getDiscounts().forEach((rating, discount) -> System.out.println("discount: " + rating + "\t" + discount));
+		
 		Comparator<Product> ratingSorter = (p1, p2) -> p2.getRating().ordinal() - p1.getRating().ordinal();
 		Comparator<Product> priceSorter = (p1, p2) -> p1.getPrice().compareTo(p2.getPrice());
+		
+		pm.dumpData();
+		pm.restoreData();
 
 //		pm.printProducts(ratingSorter.thenComparing(priceSorter));
 //		pm.printProducts(priceSorter.thenComparing(priceSorter.reversed()));
