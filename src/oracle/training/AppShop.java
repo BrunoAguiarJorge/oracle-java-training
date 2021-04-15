@@ -1,51 +1,14 @@
 package oracle.training;
 
-import java.math.BigDecimal;
-import java.util.Comparator;
-
-import oracle.training.data.Product;
 import oracle.training.data.ProductManager;
-import oracle.training.data.Rating;
 
 public class AppShop {
 	public static void main(String[] args) {
 
-		ProductManager pm = new ProductManager("en-GB");
+		ProductManager pm = ProductManager.getInstance(); // new ProductManager();
 
-		pm.createProduct(104, "Kombucha", BigDecimal.valueOf(5.99), Rating.NOT_REATED);
-		pm.printProductReport(104);
-//		pm.parseProduct("D,101,Tea,1.99,0,2019-09-19");
-		pm.printProductReport(101);
-//		pm.parseReview("101,4,Good tea");
-//		pm.parseReview("101,8,Nice tea");
-//		pm.parseReview("101,3,Nice hot tea");
-//		pm.parseReview("101,1,Nice hot cup of tea");
-//		pm.printProductReport(101);
-//		pm.parseProduct("F,103,cake,1.99,0,2019-09-19");
-//		pm.parseReview("103,4, nice cake");
-		// pm.printProductReport(103);
+		pm.printProductReport(103, "en-GB");
+		pm.printProductReport(101, "ru-RU");
 
-		pm.changeLocale("pt-BR");
-		pm.createProduct(102, "Cake", BigDecimal.valueOf(2.99), Rating.NOT_REATED);
-		pm.reviewProduct(102, Rating.ONE_STAR, "cake ");
-		pm.reviewProduct(102, Rating.ONE_STAR, "Nice cake ");
-		pm.reviewProduct(102, Rating.FOUR_STAR, "good cake ");
-		pm.reviewProduct(102, Rating.FOUR_STAR, "Beautiful");
-		pm.reviewProduct(102, Rating.FOUR_STAR, "");
-		pm.reviewProduct(102, Rating.FOUR_STAR, "Happy days");
-		pm.printProductReport(102);
-
-		pm.printProducts(p -> p.getPrice().floatValue() < 8, (p1, p2) -> p2.getRating().ordinal());
-		
-		pm.getDiscounts().forEach((rating, discount) -> System.out.println("discount: " + rating + "\t" + discount));
-		
-		Comparator<Product> ratingSorter = (p1, p2) -> p2.getRating().ordinal() - p1.getRating().ordinal();
-		Comparator<Product> priceSorter = (p1, p2) -> p1.getPrice().compareTo(p2.getPrice());
-		
-		pm.dumpData();
-		pm.restoreData();
-
-//		pm.printProducts(ratingSorter.thenComparing(priceSorter));
-//		pm.printProducts(priceSorter.thenComparing(priceSorter.reversed()));
 	}
 }
