@@ -301,7 +301,7 @@ public class ProductManager {
 		private NumberFormat moneyFormat;
 
 		private ResourceFormatter(Locale locale) {
-			this.locale = locale;
+			this.setLocale(locale);
 			resources = ResourceBundle.getBundle("oracle.training.data.resources", locale);
 			dateFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).localizedBy(locale);
 			moneyFormat = NumberFormat.getCurrencyInstance(locale);
@@ -320,6 +320,14 @@ public class ProductManager {
 
 		private String getText(String key) {
 			return resources.getString(key);
+		}
+
+		public Locale getLocale() {
+			return locale;
+		}
+
+		public void setLocale(Locale locale) {
+			this.locale = locale;
 		}
 	}
 
